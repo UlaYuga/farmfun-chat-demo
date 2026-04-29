@@ -84,7 +84,8 @@
       width: 92px;
       height: 92px;
       border-radius: 16px;
-      object-fit: cover;
+      object-fit: contain;
+      background: #eef7ff;
     }
 
     .note-card strong {
@@ -309,9 +310,12 @@
     .card img {
       display: block;
       width: 100%;
-      height: 178px;
-      object-fit: cover;
-      background: #d9edf6;
+      aspect-ratio: 1 / 1;
+      height: auto;
+      object-fit: contain;
+      background:
+        radial-gradient(circle at 20% 18%, rgba(255, 219, 110, 0.35), transparent 26%),
+        linear-gradient(180deg, #eaf8ff, #f8fbf5);
     }
 
     .card-body {
@@ -537,7 +541,7 @@
 
   <script>
     const STORAGE_KEY = "farmfun-chat-emulator-v1";
-    const TUTORIAL_SECONDS = 10;
+    const TUTORIAL_SECONDS = 3;
 
     const images = {
       stage1: "./farm/stage_1.png",
@@ -778,8 +782,8 @@
       state.step = cropId === "tomato" ? "tomato_planted" : "carrot_planted";
       saveState();
       const text = cropId === "tomato"
-        ? "Петрович: \"Ну! Удобрение - это я тебе скажу вещь. Сам без него не сажаю\"\nПомидор посажен! Удобрение сохранил для твоего участка - там пригодится больше\n\nСозреет примерно через 10 сек"
-        : "Петрович: \"Пошла! Теперь жди, я напомню когда созреет\"\n\n+20 очков за старт\n\nСозреет примерно через 10 сек";
+        ? "Петрович: \"Ну! Удобрение - это я тебе скажу вещь. Сам без него не сажаю\"\nПомидор посажен! Удобрение сохранил для твоего участка - там пригодится больше\n\nСозреет примерно через 3 сек"
+        : "Петрович: \"Пошла! Теперь жди, я напомню когда созреет\"\n\n+20 очков за старт\n\nСозреет примерно через 3 сек";
       addMessage({
         type: "card",
         avatar: "👨‍🌾",
@@ -841,7 +845,7 @@
         type: "card",
         avatar: "👨‍🌾",
         image: images.petrovitchThinking,
-        text: "Петрович: \"А вот помидор - это уже посерьезнее. Растет подольше, зато и толку больше. Держи удобрение, с ним быстрее пойдет\"\n\nНа своем участке помидор растет 4 ч.\nС удобрением - 2 ч.\nА у меня для примера снова 10 сек.",
+        text: "Петрович: \"А вот помидор - это уже посерьезнее. Растет подольше, зато и толку больше. Держи удобрение, с ним быстрее пойдет\"\n\nНа своем участке помидор растет 4 ч.\nС удобрением - 2 ч.\nА у меня для примера снова 3 сек.",
         actions: [{ id: "plant_tomato", label: "Посадить помидор", style: "green" }]
       });
     }
