@@ -165,7 +165,8 @@
       display: grid;
       grid-template-rows: auto 1fr auto;
       background:
-        radial-gradient(circle at 22% 10%, rgba(47, 125, 246, 0.1), transparent 24%),
+        radial-gradient(circle at 18% 12%, rgba(255, 206, 76, 0.2), transparent 22%),
+        radial-gradient(circle at 82% 20%, rgba(47, 125, 246, 0.14), transparent 26%),
         var(--chat);
     }
 
@@ -202,8 +203,21 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 16px;
-      font-weight: 900;
+      font-family: "Trebuchet MS", "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: 0;
+      color: #20321f;
+    }
+
+    .farmfun-title {
+      color: #1f8b54;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+
+    .bot-word {
+      color: #20385d;
+      font-weight: 850;
     }
 
     .avatar {
@@ -231,6 +245,10 @@
       padding: 14px 12px;
       overflow: auto;
       scroll-behavior: smooth;
+      background:
+        radial-gradient(circle at 14px 14px, rgba(47, 155, 93, 0.08) 0 2px, transparent 3px) 0 0 / 42px 42px,
+        radial-gradient(circle at 30px 30px, rgba(255, 200, 61, 0.1) 0 2px, transparent 3px) 0 0 / 52px 52px,
+        linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0));
     }
 
     .day {
@@ -496,7 +514,7 @@
           <header class="chat-head">
             <button class="head-btn" type="button" aria-label="Назад">‹</button>
             <div>
-              <div class="bot-name"><span class="avatar">🌻</span> FarmFun Bot</div>
+              <div class="bot-name"><span class="avatar">🌻</span> <span class="farmfun-title">FarmFun</span> <span class="bot-word">Bot</span></div>
               <div class="bot-sub" id="botSub">бот в MAX · обучение</div>
             </div>
             <button class="head-btn reset" id="resetButton" type="button" aria-label="Сбросить">↻</button>
@@ -527,6 +545,10 @@
       stage3: "./farm/stage_3.png",
       stage4: "./farm/stage_4.png",
       stage5: "./farm/stage_5.png",
+      plantingCarrot: "https://storage.yandexcloud.net/farmfun-images/planting/carrot.png",
+      plantingTomato: "https://storage.yandexcloud.net/farmfun-images/planting/tomato.png",
+      harvestCarrot: "https://storage.yandexcloud.net/farmfun-images/harvest/carrot.png",
+      harvestTomato: "https://storage.yandexcloud.net/farmfun-images/harvest/tomato.png",
       petrovitchDefault: "https://storage.yandexcloud.net/farmfun-images/petrovitch/default.png",
       petrovitchHappy: "https://storage.yandexcloud.net/farmfun-images/petrovitch/happy.png",
       petrovitchThinking: "https://storage.yandexcloud.net/farmfun-images/petrovitch/thinking.png",
@@ -534,8 +556,24 @@
     };
 
     const crops = {
-      carrot: { name: "Морковка", icon: "🥕", points: 10, seconds: TUTORIAL_SECONDS },
-      tomato: { name: "Помидор", icon: "🍅", points: 25, seconds: TUTORIAL_SECONDS }
+      carrot: {
+        name: "Морковка",
+        icon: "🥕",
+        points: 10,
+        seconds: TUTORIAL_SECONDS,
+        plantedImage: images.plantingCarrot,
+        harvestImage: images.harvestCarrot,
+        readyText: "Морковка созрела!",
+      },
+      tomato: {
+        name: "Помидор",
+        icon: "🍅",
+        points: 25,
+        seconds: TUTORIAL_SECONDS,
+        plantedImage: images.plantingTomato,
+        harvestImage: images.harvestTomato,
+        readyText: "Помидор созрел!",
+      }
     };
 
     const nowTime = () => new Date().toLocaleTimeString("ru-RU", {
@@ -559,6 +597,7 @@
       score: 20,
       harvests: 0,
       crop: null,
+      step: "welcome",
       transcript: startMessages()
     });
 
@@ -587,7 +626,7 @@
 
     function progress() {
       if (!state.crop) return { ready: false, left: 0, percent: 0 };
-      const duration = state.crop.watered ? state.crop.seconds * 0.65 : state.crop.seconds;
+      const duration = state.crop.seconds;
       const elapsed = (Date.now() - state.crop.plantedAt) / 1000;
       const percent = Math.min(100, Math.max(0, (elapsed / duration) * 100));
       return {
@@ -715,8 +754,8 @@
       addMessage({
         type: "card",
         avatar: "👨‍🌾",
-        image: images.stage1,
-        text: "Вот твоя первая грядка.\n\nНачнем с морковки: она простая, быстро растет и дает первые очки.",
+        image: images.plantingCarrot,
+        text: "Начнем с морковки - у меня как раз семена завалялись. Растет быстро, не капризная. Ну что, сажаем?",
         actions: [{ id: "plant_carrot", label: "Посадить морковку", style: "green" }]
       });
     }
@@ -731,37 +770,21 @@
         points: crop.points,
         seconds: crop.seconds,
         plantedAt: Date.now(),
-        watered: false,
-        notified: false
+        notified: false,
+        plantedImage: crop.plantedImage,
+        harvestImage: crop.harvestImage,
+        readyText: crop.readyText
       };
+      state.step = cropId === "tomato" ? "tomato_planted" : "carrot_planted";
       saveState();
-      addMessage({
-        type: "card",
-        avatar: "🌻",
-        image: images.stage2,
-        text: `${crop.name} посажена!\n\n+20 очков за старт. Теперь можно полить или проверить, сколько осталось.`,
-        actions: [
-          { id: "water", label: "Полить", style: "primary" },
-          { id: "check", label: "Когда созреет?" }
-        ]
-      });
-    }
-
-    function water() {
-      if (!state.crop) return sendGarden();
-      if (state.crop.watered) {
-        showToast("Грядка уже полита");
-        return;
-      }
-      addUser("Полить");
-      state.crop.watered = true;
-      saveState();
+      const text = cropId === "tomato"
+        ? "Петрович: \"Ну! Удобрение - это я тебе скажу вещь. Сам без него не сажаю\"\nПомидор посажен! Удобрение сохранил для твоего участка - там пригодится больше\n\nСозреет примерно через 10 сек"
+        : "Петрович: \"Пошла! Теперь жди, я напомню когда созреет\"\n\n+20 очков за старт\n\nСозреет примерно через 10 сек";
       addMessage({
         type: "card",
         avatar: "👨‍🌾",
-        image: images.petrovitchThinking,
-        text: "Ну вот! Полив принят.\n\nРост ускорился. В настоящей игре ты бы закрыл чат и вернулся по пушу.",
-        actions: [{ id: "check", label: "Проверить готовность", style: "primary" }]
+        image: cropId === "tomato" ? images.petrovitchThinking : images.petrovitchDefault,
+        text
       });
     }
 
@@ -773,22 +796,17 @@
         addMessage({
           type: "card",
           avatar: "🌻",
-          image: images.stage5,
-          text: `${state.crop.name} созрела!\n\nЖми сбор урожая.`,
+          image: state.crop.harvestImage,
+          text: state.crop.readyText,
           actions: [{ id: "harvest", label: "Собрать!", style: "orange" }]
         });
         return;
       }
 
       addMessage({
-        type: "card",
+        type: "bubble",
         avatar: "👨‍🌾",
-        image: p.percent > 55 ? images.stage4 : images.stage3,
-        text: `Еще растет.\n\nОсталось примерно ${formatLeft(p.left)}. Можно нажать проверку позже.`,
-        actions: [
-          ...(state.crop.watered ? [] : [{ id: "water", label: "Полить", style: "primary" }]),
-          { id: "check", label: "Проверить еще раз" }
-        ]
+        text: `Подожди чуть-чуть, еще растет!\n\nОсталось примерно ${formatLeft(p.left)}.`
       });
     }
 
@@ -802,26 +820,127 @@
       state.harvests += 1;
       state.crop = null;
       saveState();
+      const isTomato = crop.id === "tomato";
+      state.step = isTomato ? "tomato_done" : "carrot_done";
       addMessage({
         type: "card",
         avatar: "👨‍🌾",
         image: images.petrovitchHappy,
-        text: `Ну вот! Первый урожай собран.\n\n+${crop.points} очков. Моя школа!`,
-        actions: [
-          { id: "tomato_intro", label: "Дальше", style: "primary" },
-          { id: "rating", label: "Рейтинг" }
-        ]
+        text: isTomato
+          ? "Петрович: \"Ну? Чувствуешь разницу? То-то же\"\n\n+25 очков"
+          : "Петрович: \"Ну вот! Ничего сложного. Моя школа!\"\n\n+10 очков",
+        actions: [{ id: "shop_next", label: "Дальше", style: "primary" }]
       });
     }
 
     function tomatoIntro() {
       addUser("Дальше");
+      state.step = "tomato_intro";
+      saveState();
       addMessage({
         type: "card",
         avatar: "👨‍🌾",
         image: images.petrovitchThinking,
-        text: "А вот помидор посерьезнее.\n\nРастет дольше, зато очков больше. Для демо снова ускорим таймер.",
+        text: "Петрович: \"А вот помидор - это уже посерьезнее. Растет подольше, зато и толку больше. Держи удобрение, с ним быстрее пойдет\"\n\nНа своем участке помидор растет 4 ч.\nС удобрением - 2 ч.\nА у меня для примера снова 10 сек.",
         actions: [{ id: "plant_tomato", label: "Посадить помидор", style: "green" }]
+      });
+    }
+
+    function superwaterIntro() {
+      addUser("Дальше");
+      state.step = "superwater_intro";
+      saveState();
+      addMessage({
+        type: "card",
+        avatar: "👨‍🌾",
+        image: images.petrovitchThinking,
+        text: "Петрович: \"На вот, из своих запасов - суперполив. Льешь на грядку и сразу собираешь, без ожидания. Попробуй\"",
+        actions: [{ id: "plant_superwater_carrot", label: "Посадить морковку", style: "green" }]
+      });
+    }
+
+    function plantSuperwaterCarrot() {
+      addUser("Посадить морковку");
+      state.crop = {
+        id: "superwater_carrot",
+        name: "Морковка",
+        icon: "🥕",
+        points: 10,
+        seconds: TUTORIAL_SECONDS,
+        plantedAt: Date.now(),
+        notified: true,
+        harvestImage: images.harvestCarrot,
+        readyText: "Морковка созрела!"
+      };
+      state.step = "superwater_planted";
+      saveState();
+      addMessage({
+        type: "card",
+        avatar: "🌻",
+        image: images.plantingCarrot,
+        text: "Морковка посажена! А теперь - суперполив!",
+        actions: [{ id: "superwater", label: "Суперполив!", style: "primary" }]
+      });
+    }
+
+    function superwater() {
+      if (!state.crop) return sendGarden();
+      addUser("Суперполив!");
+      state.score += 10;
+      state.harvests += 1;
+      state.crop = null;
+      state.step = "garden_tour";
+      saveState();
+      addMessage({
+        type: "card",
+        avatar: "👨‍🌾",
+        image: images.petrovitchHappy,
+        text: "Петрович: \"Ну как? Вот так вот. Когда совсем невтерпеж - самое оно\"\n\n+10 очков",
+        actions: [{ id: "leaderboard_tour", label: "Дальше", style: "primary" }]
+      });
+    }
+
+    function leaderboardTour() {
+      addUser("Дальше");
+      state.step = "leaderboard_tour";
+      saveState();
+      const rows = [
+        "#1 Петрович - 140 очков",
+        `#2 Ты - ${state.score} очков`,
+        "#3 Соседка Нина - 55 очков"
+      ].join("\n");
+      addMessage({
+        type: "card",
+        avatar: "👨‍🌾",
+        image: images.petrovitchDefault,
+        text: `Петрович: \"А вот рейтинг - тут все соседи по очкам. Чем больше собираешь - тем выше\"\n\n${rows}`,
+        actions: [{ id: "beds_tour", label: "Понятно", style: "primary" }]
+      });
+    }
+
+    function bedsTour() {
+      addUser("Понятно");
+      state.step = "beds_tour";
+      saveState();
+      addMessage({
+        type: "card",
+        avatar: "👨‍🌾",
+        image: images.petrovitchThinking,
+        text: "Петрович: \"Пока у тебя одна грядка. На десятом уровне откроется вторая, на двадцатом - третья. А если не терпится - в магазине можно докупить еще\"",
+        actions: [{ id: "sendoff", label: "Понятно", style: "primary" }]
+      });
+    }
+
+    function sendoff() {
+      addUser("Понятно");
+      state.step = "done";
+      saveState();
+      addMessage({
+        type: "card",
+        avatar: "👨‍🌾",
+        image: images.petrovitchHappy,
+        text: "Петрович: \"Ну все, хватит на моем огороде топтаться! Вон твой участок, иди хозяйничай.\n\nНачни с морковки - она растет быстрее всего. На третьем уровне откроется помидор, потом арбуз и дальше по списку.\n\nЗаходи каждый день - за серию дней капают бонусные очки.\n\nКогда захочешь узнать, сколько осталось до созревания - напиши: когда созреет?\"",
+        actions: [{ id: "garden", label: "На свой огород", style: "green" }]
       });
     }
 
@@ -844,16 +963,13 @@
       addMessage({
         type: "card",
         avatar: "🌻",
-        image: p.ready ? images.stage5 : p.percent > 55 ? images.stage4 : images.stage3,
+        image: p.ready ? state.crop.harvestImage : state.crop.plantedImage,
         text: p.ready
           ? `${state.crop.name} готова к сбору.`
           : `${state.crop.name} растет.\n\nОсталось примерно ${formatLeft(p.left)}.`,
         actions: p.ready
           ? [{ id: "harvest", label: "Собрать!", style: "orange" }]
-          : [
-              ...(state.crop.watered ? [] : [{ id: "water", label: "Полить", style: "primary" }]),
-              { id: "check", label: "Когда созреет?" }
-            ]
+          : [{ id: "check", label: "Когда созреет?" }]
       });
     }
 
@@ -889,10 +1005,18 @@
       if (action === "onboarding") return sendPlantIntro();
       if (action === "plant_carrot") return plant("carrot");
       if (action === "plant_tomato") return plant("tomato");
-      if (action === "water") return water();
       if (action === "check") return checkReady();
       if (action === "harvest") return harvest();
-      if (action === "tomato_intro") return tomatoIntro();
+      if (action === "shop_next") {
+        if (state.step === "carrot_done") return tomatoIntro();
+        if (state.step === "tomato_done") return superwaterIntro();
+        return sendGarden();
+      }
+      if (action === "plant_superwater_carrot") return plantSuperwaterCarrot();
+      if (action === "superwater") return superwater();
+      if (action === "leaderboard_tour") return leaderboardTour();
+      if (action === "beds_tour") return bedsTour();
+      if (action === "sendoff") return sendoff();
       if (action === "rating") return sendRating();
       if (action === "shop") return sendShop();
       if (action === "garden") return sendGarden();
@@ -907,8 +1031,8 @@
       addMessage({
         type: "card",
         avatar: "🌻",
-        image: images.stage5,
-        text: `${state.crop.name} созрела!\n\nЭто имитация пуша в чате. Собери урожай.`,
+        image: state.crop.harvestImage,
+        text: state.crop.readyText,
         actions: [{ id: "harvest", label: "Собрать!", style: "orange" }]
       });
     }
