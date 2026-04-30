@@ -418,13 +418,16 @@
 
     .inline-btn {
       min-height: 42px;
+      padding: 9px 10px;
       border: 0;
       border-radius: 12px;
       background: var(--button);
       color: var(--max-dark);
-      font-size: 14px;
+      font-size: 13px;
+      line-height: 1.18;
       font-weight: 900;
       cursor: pointer;
+      white-space: normal;
     }
 
     .inline-btn.primary {
@@ -654,42 +657,64 @@
     const STORAGE_KEY = "farmfun-chat-emulator-v1";
     const TUTORIAL_SECONDS = 3;
 
+    const cropImage = (folder, cropType) =>
+      `https://storage.yandexcloud.net/farmfun-images/${folder}/${cropType}.png`;
+
     const images = {
       stage1: "./farm/stage_1.png",
       stage2: "./farm/stage_2.png",
       stage3: "./farm/stage_3.png",
       stage4: "./farm/stage_4.png",
       stage5: "./farm/stage_5.png",
-      plantingCarrot: "https://storage.yandexcloud.net/farmfun-images/planting/carrot.png",
-      plantingTomato: "https://storage.yandexcloud.net/farmfun-images/planting/tomato.png",
-      harvestCarrot: "https://storage.yandexcloud.net/farmfun-images/harvest/carrot.png",
-      harvestTomato: "https://storage.yandexcloud.net/farmfun-images/harvest/tomato.png",
       petrovitchDefault: "https://storage.yandexcloud.net/farmfun-images/petrovitch/default.png",
       petrovitchHappy: "https://storage.yandexcloud.net/farmfun-images/petrovitch/happy.png",
       petrovitchThinking: "https://storage.yandexcloud.net/farmfun-images/petrovitch/thinking.png",
       petrovitchWarning: "https://storage.yandexcloud.net/farmfun-images/petrovitch/warning.png"
     };
 
+    const buildCrop = ({ id, name, icon, points, note = "" }) => ({
+      id,
+      name,
+      icon,
+      points,
+      note,
+      seconds: TUTORIAL_SECONDS,
+      plantedImage: cropImage("planting", id),
+      harvestImage: cropImage("harvest", id),
+      readyText: `Урожай готов: ${name}!`
+    });
+
     const crops = {
-      carrot: {
-        name: "Морковка",
-        icon: "🥕",
-        points: 10,
-        seconds: TUTORIAL_SECONDS,
-        plantedImage: images.plantingCarrot,
-        harvestImage: images.harvestCarrot,
-        readyText: "Морковка созрела!",
-      },
-      tomato: {
-        name: "Помидор",
-        icon: "🍅",
-        points: 25,
-        seconds: TUTORIAL_SECONDS,
-        plantedImage: images.plantingTomato,
-        harvestImage: images.harvestTomato,
-        readyText: "Помидор созрел!",
-      }
+      carrot: buildCrop({ id: "carrot", name: "Морковка", icon: "🥕", points: 10, note: "стартовая" }),
+      tomato: buildCrop({ id: "tomato", name: "Помидор", icon: "🍅", points: 25, note: "ур. 3" }),
+      friendship: buildCrop({ id: "friendship", name: "Дружба", icon: "🌸", points: 65, note: "рефералы" }),
+      watermelon: buildCrop({ id: "watermelon", name: "Арбуз", icon: "🍉", points: 50, note: "ур. 7" }),
+      exotic: buildCrop({ id: "exotic", name: "Экзотика", icon: "🥝", points: 100, note: "ур. 15" }),
+      golden: buildCrop({ id: "golden", name: "Золотое яблоко", icon: "🍎", points: 250, note: "ур. 25" }),
+      tulip: buildCrop({ id: "tulip", name: "Тюльпан", icon: "🌷", points: 30, note: "весна" }),
+      clover: buildCrop({ id: "clover", name: "Клевер", icon: "🍀", points: 35, note: "весна" }),
+      strawberry: buildCrop({ id: "strawberry", name: "Клубника", icon: "🍓", points: 60, note: "лето" }),
+      tournament_watermelon: buildCrop({ id: "tournament_watermelon", name: "Турнирный арбуз", icon: "🏆🍉", points: 90, note: "турнир" }),
+      pumpkin: buildCrop({ id: "pumpkin", name: "Тыква", icon: "🎃", points: 120, note: "осень" }),
+      christmas_tree: buildCrop({ id: "christmas_tree", name: "Елочка", icon: "🎄", points: 80, note: "зима" }),
+      royal_grape: buildCrop({ id: "royal_grape", name: "Королевский виноград", icon: "🍇", points: 300, note: "ивент" })
     };
+
+    const cropCatalog = [
+      "carrot",
+      "tomato",
+      "friendship",
+      "watermelon",
+      "exotic",
+      "golden",
+      "tulip",
+      "clover",
+      "strawberry",
+      "tournament_watermelon",
+      "pumpkin",
+      "christmas_tree",
+      "royal_grape"
+    ];
 
     const nowTime = () => new Date().toLocaleTimeString("ru-RU", {
       hour: "2-digit",
@@ -878,7 +903,7 @@
       addMessage({
         type: "card",
         avatar: "👨‍🌾",
-        image: images.plantingCarrot,
+        image: crops.carrot.plantedImage,
         text: "Начнем с морковки - у меня как раз семена завалялись. Растет быстро, не капризная. Ну что, сажаем?",
         actions: [{ id: "plant_carrot", label: "Посадить морковку", style: "green" }]
       });
@@ -1026,15 +1051,16 @@
         seconds: TUTORIAL_SECONDS,
         plantedAt: Date.now(),
         notified: true,
-        harvestImage: images.harvestCarrot,
-        readyText: "Морковка созрела!"
+        plantedImage: crops.carrot.plantedImage,
+        harvestImage: crops.carrot.harvestImage,
+        readyText: crops.carrot.readyText
       };
       state.step = "superwater_planted";
       saveState();
       addMessage({
         type: "card",
         avatar: "🌻",
-        image: images.plantingCarrot,
+        image: crops.carrot.plantedImage,
         text: "Морковка посажена! А теперь - суперполив!",
         actions: [{ id: "superwater", label: "Суперполив!", style: "primary" }]
       });
@@ -1177,10 +1203,17 @@
       addMessage({
         type: "card",
         avatar: "🌻",
-        image: images.plantingCarrot,
-        text: "Что посадим?\n\nНа первом уровне доступна морковка. Помидор откроется на 3 уровне.",
+        image: crops.carrot.plantedImage,
+        text: "Что посадим?\n\nВ демо доступны все культуры, чтобы показать ассортимент и картинки. В реальной игре часть открывается уровнем, сезоном, турниром или рефералами.",
         actions: [
-          { id: "plant_carrot", label: "Морковка · 3 сек · 10 очков", style: "green" },
+          ...cropCatalog.map((cropId) => {
+            const crop = crops[cropId];
+            return {
+              id: `plant_${cropId}`,
+              label: `${crop.icon} ${crop.name} · ${crop.note} · ${crop.points}`,
+              style: cropId === "carrot" ? "green" : ""
+            };
+          }),
           { id: "menu", label: "Главное меню" }
         ]
       });
@@ -1236,8 +1269,6 @@
 
     function handleAction(action) {
       if (action === "onboarding") return sendPlantIntro();
-      if (action === "plant_carrot") return plant("carrot");
-      if (action === "plant_tomato") return plant("tomato");
       if (action === "check") return checkReady();
       if (action === "harvest") return harvest();
       if (action === "shop_next") {
@@ -1246,6 +1277,10 @@
         return sendGarden();
       }
       if (action === "plant_superwater_carrot") return plantSuperwaterCarrot();
+      if (action.startsWith("plant_")) {
+        const cropId = action.slice("plant_".length);
+        if (crops[cropId]) return plant(cropId);
+      }
       if (action === "superwater") return superwater();
       if (action === "leaderboard_tour") return leaderboardTour();
       if (action === "beds_tour") return bedsTour();
