@@ -17,6 +17,9 @@
   <meta name="twitter:title" content="FarmFun в чате MAX">
   <meta name="twitter:description" content="Демо чат-игры с Петровичем, кнопками, посадкой и сбором урожая.">
   <meta name="twitter:image" content="https://ulayuga.github.io/farmfun-chat-demo/farm/stage_1.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --max: #2f7df6;
@@ -38,7 +41,7 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       color: var(--ink);
       background:
         radial-gradient(circle at 15% 10%, rgba(255, 203, 71, 0.32), transparent 26%),
@@ -64,10 +67,10 @@
 
     .note {
       position: relative;
-      max-width: 620px;
-      padding: clamp(22px, 3vw, 34px);
+      max-width: 600px;
+      padding: clamp(22px, 3vw, 32px);
       border: 1px solid rgba(255, 255, 255, 0.78);
-      border-radius: 30px;
+      border-radius: 28px;
       background:
         linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.54)),
         radial-gradient(circle at 14% 18%, rgba(255, 206, 76, 0.24), transparent 28%),
@@ -91,9 +94,10 @@
     .note h1 {
       position: relative;
       z-index: 1;
-      margin: 0 0 14px;
-      font-size: clamp(42px, 6vw, 72px);
-      line-height: 0.96;
+      max-width: 520px;
+      margin: 0 0 18px;
+      font-size: clamp(38px, 5vw, 58px);
+      line-height: 1.02;
       letter-spacing: 0;
     }
 
@@ -104,11 +108,12 @@
     .note p {
       position: relative;
       z-index: 1;
-      max-width: 540px;
-      margin: 0 0 18px;
+      max-width: 500px;
+      margin: 0 0 16px;
       color: #3f5068;
-      font-size: 20px;
-      line-height: 1.46;
+      font-size: 17px;
+      line-height: 1.5;
+      font-weight: 600;
     }
 
     .note-steps {
@@ -116,18 +121,18 @@
       z-index: 1;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin: 20px 0 18px;
+      gap: 10px;
+      margin: 18px 0 16px;
     }
 
     .note-step {
-      min-height: 124px;
+      min-height: 112px;
       display: grid;
       align-content: start;
-      gap: 8px;
-      padding: 18px 18px 16px;
+      gap: 7px;
+      padding: 16px 16px 14px;
       border: 1px solid rgba(23, 32, 51, 0.08);
-      border-radius: 22px;
+      border-radius: 20px;
       background: rgba(255, 255, 255, 0.72);
       box-shadow: 0 10px 22px rgba(23, 32, 51, 0.07);
     }
@@ -135,54 +140,56 @@
     .note-step b {
       display: block;
       color: #20321f;
-      font-size: 17px;
-      line-height: 1.12;
+      font-size: 16px;
+      line-height: 1.16;
     }
 
     .note-step span {
       display: block;
       color: #5d6b7c;
-      font-size: 14px;
-      line-height: 1.34;
+      font-size: 13px;
+      line-height: 1.36;
+      font-weight: 600;
     }
 
     .note-card {
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: 120px minmax(0, 1fr);
-      gap: 18px;
+      grid-template-columns: 106px minmax(0, 1fr);
+      gap: 16px;
       align-items: center;
       width: 100%;
       max-width: none;
-      min-height: 150px;
-      padding: 18px;
+      min-height: 132px;
+      padding: 16px;
       border: 1px solid rgba(255, 255, 255, 0.8);
-      border-radius: 26px;
+      border-radius: 24px;
       background: rgba(255, 255, 255, 0.78);
       box-shadow: 0 16px 36px rgba(23, 32, 51, 0.11);
     }
 
     .note-card img {
-      width: 120px;
-      height: 120px;
-      border-radius: 22px;
+      width: 106px;
+      height: 106px;
+      border-radius: 20px;
       object-fit: contain;
       background: #eef7ff;
     }
 
     .note-card strong {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 7px;
       color: #172033;
-      font-size: 20px;
-      line-height: 1.15;
+      font-size: 18px;
+      line-height: 1.18;
     }
 
     .note-card span {
       color: var(--muted);
-      font-size: 16px;
-      line-height: 1.42;
+      font-size: 14px;
+      line-height: 1.48;
+      font-weight: 600;
     }
 
     .phone {
@@ -228,7 +235,7 @@
       background: rgba(255, 255, 255, 0.92);
       color: #182033;
       font-size: 13px;
-      font-weight: 850;
+      font-weight: 800;
     }
 
     .status-icons {
@@ -289,9 +296,8 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-family: "Trebuchet MS", "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
       font-size: 18px;
-      font-weight: 950;
+      font-weight: 900;
       letter-spacing: 0;
       color: #20321f;
     }
@@ -303,7 +309,7 @@
 
     .bot-word {
       color: #20385d;
-      font-weight: 850;
+      font-weight: 800;
     }
 
     .avatar {
@@ -609,27 +615,27 @@
 <body>
   <main class="stage">
     <section class="note">
-      <h1>FarmFun прямо <span>в чате</span></h1>
-      <p>Попробуй мини-ферму без установки и регистрации. Петрович проведет обучение: нажимай кнопки под сообщениями, выращивай урожай и смотри, как работает игра.</p>
+      <h1>FarmFun <span>в чате MAX</span></h1>
+      <p>Мини-ферма без установки и регистрации. Петрович показывает механику прямо в диалоге: жми кнопки, выращивай урожай и собирай очки.</p>
       <div class="note-steps">
         <div class="note-step">
-          <b>1. Жми кнопку</b>
-          <span>Все действия идут прямо в диалоге с ботом.</span>
+          <b>1. Жми</b>
+          <span>Действия идут кнопками под сообщениями.</span>
         </div>
         <div class="note-step">
-          <b>2. Жди рост</b>
-          <span>В демо таймер ускорен до нескольких секунд.</span>
+          <b>2. Жди</b>
+          <span>В демо таймер ускорен до 3 секунд.</span>
         </div>
         <div class="note-step">
-          <b>3. Собирай очки</b>
-          <span>Урожай двигает уровень, рейтинг и задания.</span>
+          <b>3. Собирай</b>
+          <span>Урожай дает очки, уровень и рейтинг.</span>
         </div>
       </div>
       <div class="note-card">
         <img src="./farm/stage_5.png" alt="">
         <div>
           <strong>Как в настоящем боте</strong>
-          <span>Картинки, сообщения Петровича и кнопки появляются по очереди. Начни с кнопки “Пойдем!” справа.</span>
+          <span>Сообщения, картинки и inline-кнопки появляются по очереди. Начни с кнопки “Пойдем!” справа.</span>
         </div>
       </div>
     </section>
