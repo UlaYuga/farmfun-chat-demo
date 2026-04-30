@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FarmFun в чате MAX</title>
-  <meta name="description" content="Короткое демо чат-игры FarmFun: Петрович, кнопки в диалоге, посадка, сбор урожая, рейтинг и магазин.">
+  <title>Веселая Ферма</title>
+  <meta name="description" content="Короткое демо чат-игры Веселая Ферма: Петрович, кнопки в диалоге, посадка, сбор урожая, рейтинг и магазин.">
   <link rel="canonical" href="https://ulayuga.github.io/farmfun-chat-demo/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A5%95%3C/text%3E%3C/svg%3E">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ulayuga.github.io/farmfun-chat-demo/">
-  <meta property="og:title" content="FarmFun в чате MAX">
+  <meta property="og:title" content="Веселая Ферма">
   <meta property="og:description" content="Пощелкай демо чат-игры: сажай культуры, жди таймер и собирай урожай прямо в диалоге.">
   <meta property="og:image" content="https://ulayuga.github.io/farmfun-chat-demo/farm/stage_1.png">
   <meta property="og:image:width" content="1024">
   <meta property="og:image:height" content="1024">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="FarmFun в чате MAX">
+  <meta name="twitter:title" content="Веселая Ферма">
   <meta name="twitter:description" content="Демо чат-игры с Петровичем, кнопками, посадкой и сбором урожая.">
   <meta name="twitter:image" content="https://ulayuga.github.io/farmfun-chat-demo/farm/stage_1.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -615,7 +616,7 @@
 <body>
   <main class="stage">
     <section class="note">
-      <h1>FarmFun <span>в чате MAX</span></h1>
+      <h1>Веселая Ферма <span>в чате MAX</span></h1>
       <div class="note-steps">
         <div class="note-step">
           <b>1. Жми</b>
@@ -646,11 +647,11 @@
           <span class="status-icons"><span class="dot"></span><span class="dot"></span><span class="dot"></span> LTE 84%</span>
         </div>
 
-        <section class="chat" aria-label="Чат FarmFun Bot">
+        <section class="chat" aria-label="Чат Веселая Ферма">
           <header class="chat-head">
             <button class="head-btn" type="button" aria-label="Назад">‹</button>
             <div>
-              <div class="bot-name"><span class="avatar">🌻</span> <span class="farmfun-title">FarmFun</span> <span class="bot-word">Bot</span></div>
+              <div class="bot-name"><span class="avatar">🥕</span> <span class="farmfun-title">Веселая Ферма</span></div>
               <div class="bot-sub" id="botSub">бот в MAX · обучение</div>
             </div>
             <button class="head-btn reset" id="resetButton" type="button" aria-label="Сбросить">↻</button>
@@ -865,7 +866,7 @@
       if (message.type === "card") {
         return `
           <div class="row">
-            <div class="msg-avatar">${escapeHtml(message.avatar || "🌻")}</div>
+            <div class="msg-avatar">${escapeHtml(message.avatar || "🥕")}</div>
             <div class="card">
               <img src="${escapeHtml(message.image)}" alt="">
               <div class="card-body">${escapeHtml(message.text)}<span class="time">${escapeHtml(message.time)}</span></div>
@@ -877,7 +878,7 @@
 
       return `
         <div class="row">
-          <div class="msg-avatar">${escapeHtml(message.avatar || "🌻")}</div>
+          <div class="msg-avatar">${escapeHtml(message.avatar || "🥕")}</div>
           <div>
             <div class="bubble">${escapeHtml(message.text)}<span class="time">${escapeHtml(message.time)}</span></div>
             ${renderActions(message.actions, index === activeIndex)}
@@ -947,7 +948,7 @@
         saveState();
         addMessage({
           type: "card",
-          avatar: "🌻",
+          avatar: "🥕",
           image: crop.plantedImage,
           text: `${crop.name} посажена!\n\nСозреет примерно через 3 сек. Я напомню, когда будет готово.`,
           actions: [{ id: "garden", label: "Мой огород", style: "primary" }]
@@ -975,7 +976,7 @@
       if (p.ready) {
         addMessage({
           type: "card",
-          avatar: "🌻",
+          avatar: "🥕",
           image: state.crop.harvestImage,
           text: state.crop.readyText,
           actions: [{ id: "harvest", label: "Собрать!", style: "orange" }]
@@ -985,7 +986,7 @@
 
       addMessage({
         type: "bubble",
-        avatar: isNormalMode() ? "🌻" : "👨‍🌾",
+        avatar: isNormalMode() ? "🥕" : "👨‍🌾",
         text: isNormalMode()
           ? `${state.crop.name} еще растет.\n\nОсталось примерно ${formatLeft(p.left)}.`
           : `Подожди чуть-чуть, еще растет!\n\nОсталось примерно ${formatLeft(p.left)}.`
@@ -1006,7 +1007,7 @@
         saveState();
         addMessage({
           type: "card",
-          avatar: "🌻",
+          avatar: "🥕",
           image: crop.harvestImage,
         text: `Урожай собран!\n\n+${crop.points} очков\nВсего: ${state.score} очков`,
         actions: [
@@ -1077,7 +1078,7 @@
       saveState();
       addMessage({
         type: "card",
-        avatar: "🌻",
+        avatar: "🥕",
         image: crops.carrot.plantedImage,
         text: "Морковка посажена! А теперь - суперполив!",
         actions: [{ id: "superwater", label: "Суперполив!", style: "primary" }]
@@ -1153,7 +1154,7 @@
       saveState();
       addMessage({
         type: "card",
-        avatar: "🌻",
+        avatar: "🥕",
         image: images.stage1,
         text: [
           "Главное меню",
@@ -1176,7 +1177,7 @@
       if (!state.crop) {
         addMessage({
           type: "card",
-          avatar: "🌻",
+          avatar: "🥕",
           image: images.stage1,
           text: isNormalMode()
             ? `Уровень: 1\nОчки: ${state.score}\nСерия дней: 1\n\nГрядки (0/1):\nГрядка 1: пустая`
@@ -1196,7 +1197,7 @@
       const p = progress();
       addMessage({
         type: "card",
-        avatar: "🌻",
+        avatar: "🥕",
         image: p.ready ? state.crop.harvestImage : state.crop.plantedImage,
         text: p.ready
           ? `${state.crop.name} готова к сбору.`
@@ -1216,7 +1217,7 @@
       addUser("Посадить");
       addMessage({
         type: "card",
-        avatar: "🌻",
+        avatar: "🥕",
         image: images.stage1,
         text: "Что посадим?",
         actions: [
@@ -1317,7 +1318,7 @@
       saveState();
       addMessage({
         type: "card",
-        avatar: "🌻",
+        avatar: "🥕",
         image: state.crop.harvestImage,
         text: isNormalMode()
           ? `${state.crop.name} готова! Собери урожай.`
