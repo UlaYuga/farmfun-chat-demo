@@ -712,6 +712,7 @@
       score: 20,
       harvests: 0,
       crop: null,
+      mode: "tutorial",
       step: "welcome",
       transcript: startMessages()
     });
@@ -725,7 +726,11 @@
       try {
         const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
         if (!parsed || !Array.isArray(parsed.transcript)) return defaultState();
-        return { ...defaultState(), ...parsed };
+        const migrated = { ...defaultState(), ...parsed };
+        if (migrated.step === "done") {
+          migrated.mode = "normal";
+        }
+        return migrated;
       } catch {
         return defaultState();
       }
@@ -737,6 +742,10 @@
 
     function formatLeft(seconds) {
       return `${Math.max(0, Math.ceil(seconds))} сек`;
+    }
+
+    function isNormalMode() {
+      return state.mode === "normal";
     }
 
     function progress() {
@@ -890,6 +899,19 @@
         harvestImage: crop.harvestImage,
         readyText: crop.readyText
       };
+      if (isNormalMode()) {
+        state.step = "normal_planted";
+        saveState();
+        addMessage({
+          type: "card",
+          avatar: "🌻",
+          image: crop.plantedImage,
+          text: `${crop.name} посажена!\n\nСозреет примерно через 3 сек. Я напомню, когда будет готово.`,
+          actions: [{ id: "garden", label: "Мой огород", style: "primary" }]
+        });
+        return;
+      }
+
       state.step = cropId === "tomato" ? "tomato_planted" : "carrot_planted";
       saveState();
       const text = cropId === "tomato"
@@ -920,8 +942,10 @@
 
       addMessage({
         type: "bubble",
-        avatar: "👨‍🌾",
-        text: `Подожди чуть-чуть, еще растет!\n\nОсталось примерно ${formatLeft(p.left)}.`
+        avatar: isNormalMode() ? "🌻" : "👨‍🌾",
+        text: isNormalMode()
+          ? `${state.crop.name} еще растет.\n\nОсталось примерно ${formatLeft(p.left)}.`
+          : `Подожди чуть-чуть, еще растет!\n\nОсталось примерно ${formatLeft(p.left)}.`
       });
     }
 
@@ -934,6 +958,24 @@
       state.score += crop.points;
       state.harvests += 1;
       state.crop = null;
+      if (isNormalMode()) {
+        state.step = "normal_harvested";
+        saveState();
+        addMessage({
+          type: "card",
+          avatar: "🌻",
+          image: crop.harvestImage,
+        text: `Урожай собран!\n\n+${crop.points} очков\nВсего: ${state.score} очков`,
+        actions: [
+            { id: "garden", label: "Мой огород", style: "primary" },
+            { id: "plant_show", label: "Посадить еще", style: "green" },
+            { id: "rating", label: "Рейтинг" },
+            { id: "menu", label: "Главное меню" }
+        ]
+      });
+        return;
+      }
+
       saveState();
       const isTomato = crop.id === "tomato";
       state.step = isTomato ? "tomato_done" : "carrot_done";
@@ -1048,6 +1090,7 @@
 
     function sendoff() {
       addUser("Понятно");
+      state.mode = "normal";
       state.step = "done";
       saveState();
       addMessage({
@@ -1055,7 +1098,36 @@
         avatar: "👨‍🌾",
         image: images.petrovitchHappy,
         text: "Петрович: \"Ну все, хватит на моем огороде топтаться! Вон твой участок, иди хозяйничай.\n\nНачни с морковки - она растет быстрее всего. На третьем уровне откроется помидор, потом арбуз и дальше по списку.\n\nЗаходи каждый день - за серию дней капают бонусные очки.\n\nКогда захочешь узнать, сколько осталось до созревания - напиши: когда созреет?\"",
-        actions: [{ id: "garden", label: "На свой огород", style: "green" }]
+        actions: [{ id: "menu", label: "На свой огород", style: "green" }]
+      });
+    }
+
+    function sendMenu() {
+      addUser(state.step === "done" ? "На свой огород" : "Главное меню");
+      state.mode = "normal";
+      state.step = "normal_menu";
+      saveState();
+      addMessage({
+        type: "card",
+        avatar: "🌻",
+        image: images.stage1,
+        text: [
+          "Главное меню",
+          "",
+          `Уровень: 1`,
+          `Очки: ${state.score}`,
+          `Серия дней: 1`,
+          "",
+          "Когда захочешь узнать, сколько осталось до созревания - напиши: когда созреет?"
+        ].join("\n"),
+        actions: [
+          { id: "garden", label: "Мой огород", style: "primary" },
+          { id: "plant_show", label: "Посадить", style: "green" },
+          { id: "progress", label: "Прогресс" },
+          { id: "stocks", label: "Запасы" },
+          { id: "shop", label: "Магазин" },
+          { id: "rating", label: "Рейтинг" }
+        ]
       });
     }
 
@@ -1066,11 +1138,18 @@
           type: "card",
           avatar: "🌻",
           image: images.stage1,
-          text: "Грядка пустая.\n\nВыбери, что посадить.",
-          actions: [
-            { id: "plant_carrot", label: "Морковка", style: "green" },
-            { id: "plant_tomato", label: "Помидор" }
-          ]
+          text: isNormalMode()
+            ? `Уровень: 1\nОчки: ${state.score}\nСерия дней: 1\n\nГрядки (0/1):\nГрядка 1: пустая`
+            : "Грядка пустая.\n\nВыбери, что посадить.",
+          actions: isNormalMode()
+            ? [
+                { id: "plant_show", label: "Посадить 1", style: "green" },
+                { id: "menu", label: "Главное меню" }
+              ]
+            : [
+                { id: "plant_carrot", label: "Морковка", style: "green" },
+                { id: "plant_tomato", label: "Помидор" }
+              ]
         });
         return;
       }
@@ -1081,10 +1160,49 @@
         image: p.ready ? state.crop.harvestImage : state.crop.plantedImage,
         text: p.ready
           ? `${state.crop.name} готова к сбору.`
-          : `${state.crop.name} растет.\n\nОсталось примерно ${formatLeft(p.left)}.`,
+          : isNormalMode()
+            ? `Грядка 1: ${state.crop.name} - осталось ${formatLeft(p.left)}.`
+            : `${state.crop.name} растет.\n\nОсталось примерно ${formatLeft(p.left)}.`,
         actions: p.ready
           ? [{ id: "harvest", label: "Собрать!", style: "orange" }]
-          : [{ id: "check", label: "Когда созреет?" }]
+          : [
+              { id: "check", label: "Когда созреет?" },
+              ...(isNormalMode() ? [{ id: "menu", label: "Главное меню" }] : [])
+            ]
+      });
+    }
+
+    function sendPlantShow() {
+      addUser("Посадить");
+      addMessage({
+        type: "card",
+        avatar: "🌻",
+        image: images.plantingCarrot,
+        text: "Что посадим?\n\nНа первом уровне доступна морковка. Помидор откроется на 3 уровне.",
+        actions: [
+          { id: "plant_carrot", label: "Морковка · 3 сек · 10 очков", style: "green" },
+          { id: "menu", label: "Главное меню" }
+        ]
+      });
+    }
+
+    function sendProgress() {
+      addUser("Прогресс");
+      addMessage({
+        type: "bubble",
+        avatar: "📈",
+        text: `Прогресс:\n\nУровень: 1\nОчки: ${state.score}\nУрожаи: ${state.harvests}\nДо 2 уровня: ${Math.max(0, 30 - state.score)} очков`,
+        actions: [{ id: "menu", label: "Главное меню", style: "primary" }]
+      });
+    }
+
+    function sendStocks() {
+      addUser("Запасы");
+      addMessage({
+        type: "bubble",
+        avatar: "🎒",
+        text: "Запасы:\n\nУдобрение: 1\nСуперполив: 0\nЖетон заморозки: 0",
+        actions: [{ id: "menu", label: "Главное меню", style: "primary" }]
       });
     }
 
@@ -1112,7 +1230,7 @@
         avatar: "🛒",
         image: images.stage4,
         text: "Магазин демо:\n\nУдобрение - 29 руб\nСуперполив - 49 руб\nДоп. грядка - 99 руб\n\nОплаты тут нет, только показ сценария.",
-        actions: [{ id: "garden", label: "Назад в огород", style: "primary" }]
+        actions: [{ id: "menu", label: "Главное меню", style: "primary" }]
       });
     }
 
@@ -1132,6 +1250,10 @@
       if (action === "leaderboard_tour") return leaderboardTour();
       if (action === "beds_tour") return bedsTour();
       if (action === "sendoff") return sendoff();
+      if (action === "menu") return sendMenu();
+      if (action === "plant_show") return sendPlantShow();
+      if (action === "progress") return sendProgress();
+      if (action === "stocks") return sendStocks();
       if (action === "rating") return sendRating();
       if (action === "shop") return sendShop();
       if (action === "garden") return sendGarden();
@@ -1147,7 +1269,9 @@
         type: "card",
         avatar: "🌻",
         image: state.crop.harvestImage,
-        text: state.crop.readyText,
+        text: isNormalMode()
+          ? `${state.crop.name} готова! Собери урожай.`
+          : state.crop.readyText,
         actions: [{ id: "harvest", label: "Собрать!", style: "orange" }]
       });
     }
