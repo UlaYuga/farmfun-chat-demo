@@ -819,7 +819,7 @@
 
     function renderActions(actions, enabled) {
       if (!actions?.length) return "";
-      const cls = actions.length > 1 ? "inline two" : "inline";
+      const cls = actions.some((action) => action.wide) ? "inline" : actions.length > 1 ? "inline two" : "inline";
       const buttons = actions.map((action) => `
         <button
           class="${buttonClass(action)}"
@@ -1140,10 +1140,6 @@
         text: [
           "Главное меню",
           "",
-          `Уровень: 1`,
-          `Очки: ${state.score}`,
-          `Серия дней: 1`,
-          "",
           "Когда захочешь узнать, сколько осталось до созревания - напиши: когда созреет?"
         ].join("\n"),
         actions: [
@@ -1203,18 +1199,19 @@
       addMessage({
         type: "card",
         avatar: "🌻",
-        image: crops.carrot.plantedImage,
-        text: "Что посадим?\n\nВ демо доступны все культуры, чтобы показать ассортимент и картинки. В реальной игре часть открывается уровнем, сезоном, турниром или рефералами.",
+        image: images.stage1,
+        text: "Что посадим?",
         actions: [
           ...cropCatalog.map((cropId) => {
             const crop = crops[cropId];
             return {
               id: `plant_${cropId}`,
-              label: `${crop.icon} ${crop.name} · ${crop.note} · ${crop.points}`,
-              style: cropId === "carrot" ? "green" : ""
+              label: `${crop.icon} ${crop.name} · 3 сек · ${crop.points} очков`,
+              style: cropId === "carrot" ? "green" : "",
+              wide: true
             };
           }),
-          { id: "menu", label: "Главное меню" }
+          { id: "menu", label: "Главное меню", wide: true }
         ]
       });
     }
