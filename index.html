@@ -103,67 +103,73 @@
       z-index: 1;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin: 18px 0;
+      gap: 12px;
+      margin: 20px 0 18px;
     }
 
     .note-step {
-      min-height: 112px;
-      padding: 13px;
+      min-height: 124px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      padding: 18px 18px 16px;
       border: 1px solid rgba(23, 32, 51, 0.08);
-      border-radius: 18px;
+      border-radius: 22px;
       background: rgba(255, 255, 255, 0.72);
       box-shadow: 0 10px 22px rgba(23, 32, 51, 0.07);
     }
 
     .note-step b {
       display: block;
-      margin-bottom: 7px;
       color: #20321f;
-      font-size: 15px;
-      line-height: 1.15;
+      font-size: 17px;
+      line-height: 1.12;
     }
 
     .note-step span {
       display: block;
       color: #5d6b7c;
-      font-size: 13px;
-      line-height: 1.32;
+      font-size: 14px;
+      line-height: 1.34;
     }
 
     .note-card {
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: 104px 1fr;
-      gap: 14px;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 18px;
       align-items: center;
-      max-width: 520px;
-      padding: 13px;
+      width: 100%;
+      max-width: none;
+      min-height: 150px;
+      padding: 18px;
       border: 1px solid rgba(255, 255, 255, 0.8);
-      border-radius: 22px;
+      border-radius: 26px;
       background: rgba(255, 255, 255, 0.78);
       box-shadow: 0 16px 36px rgba(23, 32, 51, 0.11);
     }
 
     .note-card img {
-      width: 104px;
-      height: 104px;
-      border-radius: 18px;
+      width: 120px;
+      height: 120px;
+      border-radius: 22px;
       object-fit: contain;
       background: #eef7ff;
     }
 
     .note-card strong {
       display: block;
-      margin-bottom: 5px;
-      font-size: 17px;
+      margin-bottom: 8px;
+      color: #172033;
+      font-size: 20px;
+      line-height: 1.15;
     }
 
     .note-card span {
       color: var(--muted);
-      font-size: 14px;
-      line-height: 1.35;
+      font-size: 16px;
+      line-height: 1.42;
     }
 
     .note-link {
@@ -543,6 +549,31 @@
 
       .note {
         display: none;
+      }
+    }
+
+    @media (max-width: 1080px) and (min-width: 921px) {
+      .stage {
+        grid-template-columns: minmax(0, 1fr) 390px;
+        gap: 24px;
+      }
+
+      .note-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .note-step {
+        min-height: auto;
+      }
+
+      .note-card {
+        grid-template-columns: 96px minmax(0, 1fr);
+        min-height: 128px;
+      }
+
+      .note-card img {
+        width: 96px;
+        height: 96px;
       }
     }
 
